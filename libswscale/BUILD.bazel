@@ -1,0 +1,220 @@
+load("@rules_cc//cc:defs.bzl", "cc_library")
+load("@rules_nasm//nasm:defs.bzl", "nasm_library")
+load("//:ffmpeg.bzl", "CC_COPTS", "ffmpeg_cc_test")
+
+package(default_visibility = ["//:__subpackages__"])
+
+nasm_library(
+    name = "swscale_asm_clean",
+    srcs = [
+        "x86/input.asm",
+        "x86/ops_float.asm",
+        "x86/ops_int.asm",
+        "x86/output.asm",
+        "x86/range_convert.asm",
+        "x86/rgb_2_rgb.asm",
+        "x86/scale.asm",
+        "x86/scale_avx2.asm",
+        "x86/yuv2yuvX.asm",
+        "x86/yuv_2_rgb.asm",
+    ],
+    hdrs = [
+        "x86/input.asm",
+        "x86/ops_common.asm",
+        "x86/ops_float.asm",
+        "x86/ops_int.asm",
+        "x86/output.asm",
+        "x86/range_convert.asm",
+        "x86/rgb_2_rgb.asm",
+        "x86/scale.asm",
+        "x86/scale_avx2.asm",
+        "x86/yuv2yuvX.asm",
+        "x86/yuv_2_rgb.asm",
+        "//libavutil:x86/x86inc.asm",
+        "//libavutil:x86/x86util.asm",
+    ] + select({
+        "//:linux_x86_64": [
+            "//:platform/linux-x86_64/config.asm",
+            "//:platform/linux-x86_64/config_components.asm",
+        ],
+        "//:windows_x86_64": [
+            "//:platform/windows-x86_64/config.asm",
+            "//:platform/windows-x86_64/config_components.asm",
+        ],
+        "//conditions:default": [],
+    }),
+    copts = select({
+        "//:windows_x86_64": [
+            "-f",
+            "win64",
+            "-DPIC",
+        ],
+        "//conditions:default": [
+            "-f",
+            "elf64",
+            "-DPIC",
+        ],
+    }),
+    includes = [
+        ".",
+        "x86",
+    ],
+    preincs = select({
+        "//:linux_x86_64": ["//:platform/linux-x86_64/config.asm"],
+        "//:windows_x86_64": ["//:platform/windows-x86_64/config.asm"],
+        "//conditions:default": [],
+    }),
+)
+
+cc_library(
+    name = "swscale",
+    srcs = [
+        "alphablend.c",
+        "cms.c",
+        "csputils.c",
+        "format.c",
+        "gamma.c",
+        "graph.c",
+        "half2float.c",
+        "hscale.c",
+        "hscale_fast_bilinear.c",
+        "input.c",
+        "log2_tab.c",
+        "lut3d.c",
+        "ops.c",
+        "ops_backend.c",
+        "ops_chain.c",
+        "ops_memcpy.c",
+        "ops_optimizer.c",
+        "options.c",
+        "output.c",
+        "rgb2rgb.c",
+        "slice.c",
+        "swscale.c",
+        "swscale_unscaled.c",
+        "utils.c",
+        "version.c",
+        "vscale.c",
+        "yuv2rgb.c",
+    ] + select({
+        "//:linux_x86_64": [
+            "x86/hscale_fast_bilinear_simd.c",
+            "x86/ops.c",
+            "x86/rgb2rgb.c",
+            "x86/swscale.c",
+            "x86/yuv2rgb.c",
+            ":swscale_asm_clean",
+        ],
+        "//:windows_x86_64": [
+            "x86/hscale_fast_bilinear_simd.c",
+            "x86/ops.c",
+            "x86/rgb2rgb.c",
+            "x86/swscale.c",
+            "x86/yuv2rgb.c",
+            ":swscale_asm_clean",
+        ],
+        "//:linux_aarch64": [
+            "aarch64/hscale.S",
+            "aarch64/input.S",
+            "aarch64/output.S",
+            "aarch64/range_convert_neon.S",
+            "aarch64/rgb2rgb.c",
+            "aarch64/rgb2rgb_neon.S",
+            "aarch64/swscale.c",
+            "aarch64/swscale_unscaled.c",
+            "aarch64/swscale_unscaled_neon.S",
+            "aarch64/xyz2rgb_neon.S",
+            "aarch64/yuv2rgb_neon.S",
+        ],
+        "//:darwin_aarch64": [
+            "aarch64/hscale.S",
+            "aarch64/input.S",
+            "aarch64/output.S",
+            "aarch64/range_convert_neon.S",
+            "aarch64/rgb2rgb.c",
+            "aarch64/rgb2rgb_neon.S",
+            "aarch64/swscale.c",
+            "aarch64/swscale_unscaled.c",
+            "aarch64/swscale_unscaled_neon.S",
+            "aarch64/xyz2rgb_neon.S",
+            "aarch64/yuv2rgb_neon.S",
+        ],
+        "//conditions:default": [],
+    }),
+    hdrs = [
+        "aarch64/asm-offsets.h",
+        "cms.h",
+        "csputils.h",
+        "format.h",
+        "graph.h",
+        "loongarch/swscale_loongarch.h",
+        "lut3d.h",
+        "ops.h",
+        "ops_backend.h",
+        "ops_chain.h",
+        "ops_internal.h",
+        "ppc/yuv2rgb_altivec.h",
+        "rgb2rgb.h",
+        "swscale.h",
+        "swscale_internal.h",
+        "version.h",
+        "version_major.h",
+    ],
+    copts = CC_COPTS,
+    includes = [
+        ".",
+        "..",
+        "x86",
+    ],
+    linkstatic = True,
+    textual_hdrs = [
+        "//libavutil:file_open.c",
+        "//libavutil:float2half.c",
+        "//libavutil:float_scalarproduct.c",
+        "//libavutil:half2float.c",
+        "//libavutil:log2_tab.c",
+        "//libavutil:reverse.c",
+        "//libavutil:riscv/cpu_common.c",
+        "//libavutil:timecode_internal.c",
+        "//libavutil:vulkan.c",
+        "//libavutil:vulkan_glslang.c",
+        "//libavutil:vulkan_shaderc.c",
+        "//libavutil:tx_template.c",
+        "bayer_template.c",
+        "ops_tmpl_common.c",
+        "ops_tmpl_float.c",
+        "ops_tmpl_int.c",
+        "rgb2rgb_template.c",
+        "x86/swscale_template.c",
+    ],
+    deps = [
+        "//:compat",
+        "//:config_h",
+        "//:ffmpeg_headers",
+        "//libavutil:avutil",
+    ],
+)
+
+# ffmpeg_cc_test(
+#     name = "swscale_test",
+#     srcs = ["tests/swscale.c"],
+#     deps = [":swscale"],
+# )
+
+ffmpeg_cc_test(
+    name = "pixdesc_query_test",
+    srcs = ["tests/pixdesc_query.c"],
+    deps = [":swscale"],
+)
+
+ffmpeg_cc_test(
+    name = "floatimg_cmp_test",
+    srcs = ["tests/floatimg_cmp.c"],
+    deps = [":swscale"],
+)
+
+ffmpeg_cc_test(
+    name = "colorspace_test",
+    srcs = ["tests/colorspace.c"],
+    deps = [":swscale"],
+)

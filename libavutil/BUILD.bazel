@@ -1,0 +1,780 @@
+load("@rules_cc//cc:defs.bzl", "cc_library")
+load("@rules_nasm//nasm:defs.bzl", "nasm_library")
+load("//:ffmpeg.bzl", "CC_COPTS", "ffmpeg_cc_test")
+
+package(default_visibility = ["//:__subpackages__"])
+
+nasm_library(
+    name = "avutil_asm_clean",
+    srcs = [
+        "x86/aes.asm",
+        "x86/cpuid.asm",
+        "x86/crc.asm",
+        "x86/fixed_dsp.asm",
+        "x86/float_dsp.asm",
+        "x86/imgutils.asm",
+        "x86/lls.asm",
+        "x86/tx_float.asm",
+    ],
+    hdrs = [
+        "x86/emms.asm",
+        "x86/x86inc.asm",
+        "x86/x86util.asm",
+    ] + select({
+        "//:linux_x86_64": [
+            "//:platform/linux-x86_64/config.asm",
+            "//:platform/linux-x86_64/config_components.asm",
+        ],
+        "//:windows_x86_64": [
+            "//:platform/windows-x86_64/config.asm",
+            "//:platform/windows-x86_64/config_components.asm",
+        ],
+        "//conditions:default": [],
+    }),
+    copts = select({
+        "//:windows_x86_64": [
+            "-f",
+            "win64",
+            "-DPIC",
+        ],
+        "//conditions:default": [
+            "-f",
+            "elf64",
+            "-DPIC",
+        ],
+    }),
+    includes = [
+        ".",
+        "..",
+        "x86",
+    ],
+    preincs = select({
+        "//:linux_x86_64": ["//:platform/linux-x86_64/config.asm"],
+        "//:windows_x86_64": ["//:platform/windows-x86_64/config.asm"],
+        "//conditions:default": [],
+    }),
+    target_compatible_with = [
+        "@platforms//cpu:x86_64",
+    ],
+)
+
+cc_library(
+    name = "avutil",
+    srcs = [
+        "adler32.c",
+        "aes.c",
+        "aes_ctr.c",
+        "ambient_viewing_environment.c",
+        "audio_fifo.c",
+        "avsscanf.c",
+        "avstring.c",
+        "base64.c",
+        "blowfish.c",
+        "bprint.c",
+        "buffer.c",
+        "camellia.c",
+        "cast5.c",
+        "channel_layout.c",
+        "container_fifo.c",
+        "cpu.c",
+        "crc.c",
+        "csp.c",
+        "des.c",
+        "detection_bbox.c",
+        "dict.c",
+        "display.c",
+        "dovi_meta.c",
+        "downmix_info.c",
+        "encryption_info.c",
+        "error.c",
+        "eval.c",
+        "executor.c",
+        "fifo.c",
+        "file.c",
+        "file_open.c",
+        "film_grain_params.c",
+        "fixed_dsp.c",
+        "float_dsp.c",
+        "float_scalarproduct.c",
+        "frame.c",
+        "half2float.c",
+        "hash.c",
+        "hdr_dynamic_metadata.c",
+        "hdr_dynamic_vivid_metadata.c",
+        "hmac.c",
+        "hwcontext.c",
+        "iamf.c",
+        "imgutils.c",
+        "integer.c",
+        "intmath.c",
+        "lfg.c",
+        "lls.c",
+        "log.c",
+        "log2_tab.c",
+        "lzo.c",
+        "mastering_display_metadata.c",
+        "mathematics.c",
+        "md5.c",
+        "mem.c",
+        "murmur3.c",
+        "opt.c",
+        "parseutils.c",
+        "pixdesc.c",
+        "pixelutils.c",
+        "random_seed.c",
+        "rational.c",
+        "rc4.c",
+        "refstruct.c",
+        "reverse.c",
+        "ripemd.c",
+        "samplefmt.c",
+        "sha.c",
+        "sha512.c",
+        "side_data.c",
+        "slicethread.c",
+        "spherical.c",
+        "stereo3d.c",
+        "tdrdi.c",
+        "tea.c",
+        "threadmessage.c",
+        "time.c",
+        "timecode.c",
+        "timecode_internal.c",
+        "timestamp.c",
+        "tree.c",
+        "twofish.c",
+        "tx.c",
+        "tx_double.c",
+        "tx_float.c",
+        "tx_int32.c",
+        "utils.c",
+        "uuid.c",
+        "version.c",
+        "video_enc_params.c",
+        "video_hint.c",
+        "xga_font_data.c",
+        "xtea.c",
+    ] + select({
+        "//:linux_x86_64": [
+            "hwcontext_drm.c",
+            "x86/aes_init.c",
+            "x86/cpu.c",
+            "x86/fixed_dsp_init.c",
+            "x86/float_dsp_init.c",
+            "x86/imgutils_init.c",
+            "x86/lls_init.c",
+            "x86/tx_float_init.c",
+            ":avutil_asm_clean",
+        ],
+        "//:windows_x86_64": [
+            "hwcontext_d3d11va.c",
+            "hwcontext_d3d12va.c",
+            "hwcontext_dxva2.c",
+            "x86/aes_init.c",
+            "x86/cpu.c",
+            "x86/fixed_dsp_init.c",
+            "x86/float_dsp_init.c",
+            "x86/imgutils_init.c",
+            "x86/lls_init.c",
+            "x86/tx_float_init.c",
+            ":avutil_asm_clean",
+        ],
+        "//:linux_aarch64": [
+            "aarch64/asm.S",
+            "aarch64/cpu.c",
+            "aarch64/cpu_sme.S",
+            "aarch64/cpu_sve.S",
+            "aarch64/crc.S",
+            "aarch64/float_dsp_init.c",
+            "aarch64/float_dsp_neon.S",
+            "aarch64/tx_float_init.c",
+            "aarch64/tx_float_neon.S",
+            "hwcontext_drm.c",
+        ],
+        "//:darwin_aarch64": [
+            "aarch64/asm.S",
+            "aarch64/cpu.c",
+            "aarch64/cpu_sme.S",
+            "aarch64/cpu_sve.S",
+            "aarch64/crc.S",
+            "aarch64/float_dsp_init.c",
+            "aarch64/float_dsp_neon.S",
+            "aarch64/tx_float_init.c",
+            "aarch64/tx_float_neon.S",
+            "hwcontext_drm.c",
+            "hwcontext_videotoolbox.c",
+        ],
+        "//conditions:default": [],
+    }),
+    hdrs = [
+        "aarch64/cpu.h",
+        "aarch64/crc.h",
+        "aarch64/intreadwrite.h",
+        "aarch64/neontest.h",
+        "aarch64/timer.h",
+        "adler32.h",
+        "aes.h",
+        "aes_ctr.h",
+        "aes_internal.h",
+        "ambient_viewing_environment.h",
+        "arm/bswap.h",
+        "arm/cpu.h",
+        "arm/float_dsp_arm.h",
+        "arm/intmath.h",
+        "arm/neontest.h",
+        "arm/timer.h",
+        "attributes.h",
+        "attributes_internal.h",
+        "audio_fifo.h",
+        "avassert.h",
+        "avstring.h",
+        "avutil.h",
+        "base64.h",
+        "blowfish.h",
+        "bprint.h",
+        "bswap.h",
+        "buffer.h",
+        "buffer_internal.h",
+        "camellia.h",
+        "cast5.h",
+        "channel_layout.h",
+        "colorspace.h",
+        "common.h",
+        "container_fifo.h",
+        "cpu.h",
+        "cpu_internal.h",
+        "crc.h",
+        "csp.h",
+        "cuda_check.h",
+        "des.h",
+        "detection_bbox.h",
+        "dict.h",
+        "display.h",
+        "dovi_meta.h",
+        "downmix_info.h",
+        "dynarray.h",
+        "emms.h",
+        "encryption_info.h",
+        "error.h",
+        "eval.h",
+        "executor.h",
+        "ffmath.h",
+        "fifo.h",
+        "file.h",
+        "file_open.h",
+        "film_grain_params.h",
+        "fixed_dsp.h",
+        "float2half.h",
+        "float_dsp.h",
+        "frame.h",
+        "getenv_utf8.h",
+        "half2float.h",
+        "hash.h",
+        "hdr_dynamic_metadata.h",
+        "hdr_dynamic_vivid_metadata.h",
+        "hmac.h",
+        "hwcontext.h",
+        "hwcontext_amf.h",
+        "hwcontext_amf_internal.h",
+        "hwcontext_cuda.h",
+        "hwcontext_cuda_internal.h",
+        "hwcontext_drm.h",
+        "hwcontext_internal.h",
+        "hwcontext_mediacodec.h",
+        "hwcontext_oh.h",
+        "hwcontext_opencl.h",
+        "hwcontext_qsv.h",
+        "hwcontext_vaapi.h",
+        "hwcontext_vdpau.h",
+        "hwcontext_videotoolbox.h",
+        "hwcontext_vulkan.h",
+        "iamf.h",
+        "imgutils.h",
+        "imgutils_internal.h",
+        "integer.h",
+        "internal.h",
+        "intfloat.h",
+        "intmath.h",
+        "intreadwrite.h",
+        "lfg.h",
+        "libm.h",
+        "lls.h",
+        "log.h",
+        "loongarch/cpu.h",
+        "loongarch/loongson_intrinsics.h",
+        "loongarch/timer.h",
+        "lzo.h",
+        "macos_kperf.h",
+        "macros.h",
+        "mastering_display_metadata.h",
+        "mathematics.h",
+        "md5.h",
+        "mem.h",
+        "mem_internal.h",
+        "mips/asmdefs.h",
+        "mips/cpu.h",
+        "mips/generic_macros_msa.h",
+        "mips/intreadwrite.h",
+        "mips/libm_mips.h",
+        "mips/mmiutils.h",
+        "motion_vector.h",
+        "murmur3.h",
+        "objc.h",
+        "opt.h",
+        "parseutils.h",
+        "pca.h",
+        "pixdesc.h",
+        "pixelutils.h",
+        "pixfmt.h",
+        "ppc/cpu.h",
+        "ppc/float_dsp_altivec.h",
+        "ppc/float_dsp_vsx.h",
+        "ppc/intreadwrite.h",
+        "ppc/timer.h",
+        "ppc/util_altivec.h",
+        "qsort.h",
+        "random_seed.h",
+        "rational.h",
+        "rc4.h",
+        "refstruct.h",
+        "replaygain.h",
+        "reverse.h",
+        "ripemd.h",
+        "riscv/bswap.h",
+        "riscv/cpu.h",
+        "riscv/intmath.h",
+        "samplefmt.h",
+        "sfc64.h",
+        "sha.h",
+        "sha512.h",
+        "side_data.h",
+        "slicethread.h",
+        "softfloat.h",
+        "softfloat_ieee754.h",
+        "softfloat_tables.h",
+        "spherical.h",
+        "stereo3d.h",
+        "tablegen.h",
+        "tdrdi.h",
+        "tea.h",
+        "thread.h",
+        "threadmessage.h",
+        "time.h",
+        "time_internal.h",
+        "timecode.h",
+        "timecode_internal.h",
+        "timer.h",
+        "timestamp.h",
+        "tree.h",
+        "twofish.h",
+        "tx.h",
+        "tx_priv.h",
+        "uuid.h",
+        "version.h",
+        "version_major.h",
+        "video_enc_params.h",
+        "video_hint.h",
+        "vulkan.h",
+        "vulkan_functions.h",
+        "vulkan_loader.h",
+        "vulkan_spirv.h",
+        "wchar_filename.h",
+        "x86/asm.h",
+        "x86/bswap.h",
+        "x86/cpu.h",
+        "x86/crc.h",
+        "x86/intmath.h",
+        "x86/intreadwrite.h",
+        "x86/pixelutils.h",
+        "x86/timer.h",
+        "x86/w64xmmtest.h",
+        "xga_font_data.h",
+        "xtea.h",
+        "zlib_utils.h",
+    ] + select({
+        "//:windows_x86_64": [
+            "hwcontext_d3d11va.h",
+            "hwcontext_d3d12va.h",
+            "hwcontext_d3d12va_internal.h",
+            "hwcontext_dxva2.h",
+        ],
+        "//conditions:default": [],
+    }),
+    copts = CC_COPTS,
+    includes = [
+        "..",
+    ],
+    linkopts = select({
+        "//:windows_x86_64": [
+            "-DEFAULTLIB:bcrypt.lib",
+            "-DEFAULTLIB:user32.lib",
+        ],
+        "//:darwin_aarch64": [
+            "-pthread",
+            "-framework CoreVideo",
+            "-framework CoreMedia",
+            "-framework VideoToolbox",
+            "-framework CoreFoundation",
+        ],
+        "//conditions:default": ["-pthread"],
+    }),
+    linkstatic = True,
+    textual_hdrs = [
+        "audio_fifo.c",
+        "bprint.c",
+        "des.c",
+        "dict.c",
+        "display.c",
+        "error.c",
+        "file.c",
+        "file_open.c",
+        "float2half.c",
+        "float_scalarproduct.c",
+        "frame.c",
+        "half2float.c",
+        "hmac.c",
+        "imgutils.c",
+        "log.c",
+        "log2_tab.c",
+        "parseutils.c",
+        "pca.c",
+        "pixdesc.c",
+        "pixelutils.c",
+        "random_seed.c",
+        "rational.c",
+        "reverse.c",
+        "riscv/cpu_common.c",
+        "timecode_internal.c",
+        "tree.c",
+        "vulkan.c",
+        "vulkan_glslang.c",
+        "vulkan_shaderc.c",
+        "tx_template.c",
+    ] + select({
+        "//:linux_aarch64": ["aarch64/asm.S"],
+        "//:darwin_aarch64": ["aarch64/asm.S"],
+        "//conditions:default": [],
+    }),
+    deps = [
+        "//:compat",
+        "//:config_h",
+        "//:ffmpeg_headers",
+        "@vulkan-headers//:vulkan_headers",
+        "@zlib",
+    ] + select({
+        "//:windows_x86_64": [],
+        "//conditions:default": [
+            "@libdrm//:drm",
+        ],
+    }),
+)
+
+ffmpeg_cc_test(
+    name = "adler32_test",
+    srcs = ["tests/adler32.c"],
+    deps = [":avutil"],
+)
+
+ffmpeg_cc_test(
+    name = "aes_test",
+    srcs = ["tests/aes.c"],
+    deps = [":avutil"],
+)
+
+ffmpeg_cc_test(
+    name = "aes_ctr_test",
+    srcs = ["tests/aes_ctr.c"],
+    deps = [":avutil"],
+)
+
+ffmpeg_cc_test(
+    name = "audio_fifo_test",
+    srcs = ["tests/audio_fifo.c"],
+    deps = [":avutil"],
+)
+
+ffmpeg_cc_test(
+    name = "avstring_test",
+    srcs = ["tests/avstring.c"],
+    deps = [":avutil"],
+)
+
+ffmpeg_cc_test(
+    name = "base64_test",
+    srcs = ["tests/base64.c"],
+    deps = [":avutil"],
+)
+
+ffmpeg_cc_test(
+    name = "blowfish_test",
+    srcs = ["tests/blowfish.c"],
+    deps = [":avutil"],
+)
+
+ffmpeg_cc_test(
+    name = "bprint_test",
+    srcs = ["tests/bprint.c"],
+    deps = [":avutil"],
+)
+
+ffmpeg_cc_test(
+    name = "camellia_test",
+    srcs = ["tests/camellia.c"],
+    deps = [":avutil"],
+)
+
+ffmpeg_cc_test(
+    name = "cast5_test",
+    srcs = ["tests/cast5.c"],
+    deps = [":avutil"],
+)
+
+ffmpeg_cc_test(
+    name = "channel_layout_test",
+    srcs = ["tests/channel_layout.c"],
+    deps = [":avutil"],
+)
+
+ffmpeg_cc_test(
+    name = "color_utils_test",
+    srcs = ["tests/color_utils.c"],
+    deps = [":avutil"],
+)
+
+ffmpeg_cc_test(
+    name = "cpu_test",
+    srcs = ["tests/cpu.c"],
+    deps = [
+        ":avutil",
+        "//:compat",
+    ],
+)
+
+ffmpeg_cc_test(
+    name = "crc_test",
+    srcs = ["tests/crc.c"],
+    deps = [":avutil"],
+)
+
+ffmpeg_cc_test(
+    name = "des_test",
+    srcs = ["tests/des.c"],
+    deps = [":avutil"],
+)
+
+ffmpeg_cc_test(
+    name = "dict_test",
+    srcs = ["tests/dict.c"],
+    deps = [":avutil"],
+)
+
+ffmpeg_cc_test(
+    name = "display_test",
+    srcs = ["tests/display.c"],
+    deps = [":avutil"],
+)
+
+ffmpeg_cc_test(
+    name = "encryption_info_test",
+    srcs = ["tests/encryption_info.c"],
+    deps = [":avutil"],
+)
+
+ffmpeg_cc_test(
+    name = "error_test",
+    srcs = ["tests/error.c"],
+    deps = [":avutil"],
+)
+
+ffmpeg_cc_test(
+    name = "eval_test",
+    srcs = ["tests/eval.c"],
+    deps = [":avutil"],
+)
+
+ffmpeg_cc_test(
+    name = "fifo_test",
+    srcs = ["tests/fifo.c"],
+    deps = [":avutil"],
+)
+
+ffmpeg_cc_test(
+    name = "file_test",
+    srcs = ["tests/file.c"],
+    data = ["file.c"],
+    deps = [":avutil"],
+)
+
+ffmpeg_cc_test(
+    name = "hash_test",
+    srcs = ["tests/hash.c"],
+    deps = [":avutil"],
+)
+
+ffmpeg_cc_test(
+    name = "hmac_test",
+    srcs = ["tests/hmac.c"],
+    deps = [":avutil"],
+)
+
+ffmpeg_cc_test(
+    name = "hwdevice_test",
+    srcs = ["tests/hwdevice.c"],
+    deps = [":avutil"],
+)
+
+ffmpeg_cc_test(
+    name = "imgutils_test",
+    srcs = ["tests/imgutils.c"],
+    deps = [":avutil"],
+)
+
+ffmpeg_cc_test(
+    name = "integer_test",
+    srcs = ["tests/integer.c"],
+    deps = [":avutil"],
+)
+
+ffmpeg_cc_test(
+    name = "lfg_test",
+    srcs = ["tests/lfg.c"],
+    deps = [":avutil"],
+)
+
+ffmpeg_cc_test(
+    name = "lls_test",
+    srcs = ["tests/lls.c"],
+    deps = [":avutil"],
+)
+
+ffmpeg_cc_test(
+    name = "log_test",
+    srcs = ["tests/log.c"],
+    deps = [":avutil"],
+)
+
+ffmpeg_cc_test(
+    name = "md5_test",
+    srcs = ["tests/md5.c"],
+    deps = [":avutil"],
+)
+
+ffmpeg_cc_test(
+    name = "murmur3_test",
+    srcs = ["tests/murmur3.c"],
+    deps = [":avutil"],
+)
+
+ffmpeg_cc_test(
+    name = "opt_test",
+    srcs = ["tests/opt.c"],
+    deps = [":avutil"],
+)
+
+ffmpeg_cc_test(
+    name = "parseutils_test",
+    srcs = ["tests/parseutils.c"],
+    deps = [":avutil"],
+)
+
+ffmpeg_cc_test(
+    name = "pca_test",
+    srcs = ["tests/pca.c"],
+    deps = [":avutil"],
+)
+
+ffmpeg_cc_test(
+    name = "pixdesc_test",
+    srcs = ["tests/pixdesc.c"],
+    deps = [":avutil"],
+)
+
+ffmpeg_cc_test(
+    name = "pixelutils_test",
+    srcs = ["tests/pixelutils.c"],
+    deps = [":avutil"],
+)
+
+ffmpeg_cc_test(
+    name = "pixfmt_best_test",
+    srcs = ["tests/pixfmt_best.c"],
+    deps = [":avutil"],
+)
+
+ffmpeg_cc_test(
+    name = "random_seed_test",
+    srcs = ["tests/random_seed.c"],
+    deps = [":avutil"],
+)
+
+ffmpeg_cc_test(
+    name = "rational_test",
+    srcs = ["tests/rational.c"],
+    deps = [":avutil"],
+)
+
+ffmpeg_cc_test(
+    name = "ripemd_test",
+    srcs = ["tests/ripemd.c"],
+    deps = [":avutil"],
+)
+
+ffmpeg_cc_test(
+    name = "sha_test",
+    srcs = ["tests/sha.c"],
+    deps = [":avutil"],
+)
+
+ffmpeg_cc_test(
+    name = "sha512_test",
+    srcs = ["tests/sha512.c"],
+    deps = [":avutil"],
+)
+
+ffmpeg_cc_test(
+    name = "side_data_array_test",
+    srcs = ["tests/side_data_array.c"],
+    deps = [":avutil"],
+)
+
+ffmpeg_cc_test(
+    name = "softfloat_test",
+    srcs = ["tests/softfloat.c"],
+    deps = [":avutil"],
+)
+
+ffmpeg_cc_test(
+    name = "tea_test",
+    srcs = ["tests/tea.c"],
+    deps = [":avutil"],
+)
+
+ffmpeg_cc_test(
+    name = "tree_test",
+    srcs = ["tests/tree.c"],
+    deps = [":avutil"],
+)
+
+ffmpeg_cc_test(
+    name = "twofish_test",
+    srcs = ["tests/twofish.c"],
+    deps = [":avutil"],
+)
+
+# ffmpeg_cc_test(
+#     name = "utf8_test",
+#     srcs = ["tests/utf8.c"],
+#     deps = [":avutil"],
+# )
+
+ffmpeg_cc_test(
+    name = "uuid_test",
+    srcs = ["tests/uuid.c"],
+    deps = [":avutil"],
+)
+
+ffmpeg_cc_test(
+    name = "xtea_test",
+    srcs = ["tests/xtea.c"],
+    deps = [":avutil"],
+)

@@ -1,0 +1,7 @@
+package(default_visibility = ["//visibility:public"])
+
+exports_files([
+    "bsf_list.c",
+    "codec_list.c",
+    "parser_list.c",
+])

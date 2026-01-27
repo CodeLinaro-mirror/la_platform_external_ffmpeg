@@ -948,7 +948,7 @@ const FFCodec * codec_list[] = {
     NULL
 };
 #else
-#include "libavcodec/codec_list.c"
+#include "platform/common/libavcodec/codec_list.c"
 #endif
 
 static AVOnce av_codec_static_init = AV_ONCE_INIT;

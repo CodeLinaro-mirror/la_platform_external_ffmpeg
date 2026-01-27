@@ -33,7 +33,9 @@
 #include <unistd.h>
 #endif
 #if !HAVE_GETOPT
-#include "compat/getopt.c"
+extern int opterr, optind, optopt;
+extern char *optarg;
+extern int getopt(int argc, char * const argv[], const char *optstring);
 #endif
 
 static const struct {

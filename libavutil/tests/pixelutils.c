@@ -17,6 +17,7 @@
  */
 
 #include <stdio.h>
+#include <string.h>
 
 #include "libavutil/avassert.h"
 #include "libavutil/internal.h"
@@ -26,6 +27,7 @@
 #include "libavutil/pixelutils.c"
 #include "libavutil/pixfmt.h"
 
+#if CONFIG_PIXELUTILS
 #define W1 320
 #define H1 240
 #define W2 640
@@ -197,3 +199,9 @@ end:
     av_free(buf2);
     return ret;
 }
+#else
+int main(void)
+{
+    return 0;
+}
+#endif

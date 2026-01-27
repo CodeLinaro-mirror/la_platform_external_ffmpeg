@@ -1,0 +1,140 @@
+load("@rules_cc//cc:defs.bzl", "cc_library")
+load("@rules_nasm//nasm:defs.bzl", "nasm_library")
+load("//:ffmpeg.bzl", "CC_COPTS", "ffmpeg_cc_test")
+
+package(default_visibility = ["//:__subpackages__"])
+
+nasm_library(
+    name = "swresample_asm_clean",
+    srcs = [
+        "x86/audio_convert.asm",
+        "x86/rematrix.asm",
+        "x86/resample.asm",
+    ],
+    hdrs = [
+        "x86/audio_convert.asm",
+        "x86/rematrix.asm",
+        "x86/resample.asm",
+        "//libavutil:x86/x86inc.asm",
+        "//libavutil:x86/x86util.asm",
+    ] + select({
+        "//:linux_x86_64": [
+            "//:platform/linux-x86_64/config.asm",
+            "//:platform/linux-x86_64/config_components.asm",
+        ],
+        "//:windows_x86_64": [
+            "//:platform/windows-x86_64/config.asm",
+            "//:platform/windows-x86_64/config_components.asm",
+        ],
+        "//conditions:default": [],
+    }),
+    copts = select({
+        "//:windows_x86_64": [
+            "-f",
+            "win64",
+            "-DPIC",
+        ],
+        "//conditions:default": [
+            "-f",
+            "elf64",
+            "-DPIC",
+        ],
+    }),
+    includes = [
+        ".",
+        "x86",
+    ],
+    preincs = select({
+        "//:linux_x86_64": ["//:platform/linux-x86_64/config.asm"],
+        "//:windows_x86_64": ["//:platform/windows-x86_64/config.asm"],
+        "//conditions:default": [],
+    }),
+)
+
+cc_library(
+    name = "swresample",
+    srcs = [
+        "audioconvert.c",
+        "dither.c",
+        "log2_tab.c",
+        "options.c",
+        "rematrix.c",
+        "resample.c",
+        "resample_dsp.c",
+        "swresample.c",
+        "swresample_frame.c",
+        "version.c",
+    ] + select({
+        "//:linux_x86_64": [
+            "x86/audio_convert_init.c",
+            "x86/rematrix_init.c",
+            "x86/resample_init.c",
+            ":swresample_asm_clean",
+        ],
+        "//:windows_x86_64": [
+            "x86/audio_convert_init.c",
+            "x86/rematrix_init.c",
+            "x86/resample_init.c",
+            ":swresample_asm_clean",
+        ],
+        "//:linux_aarch64": [
+            "aarch64/audio_convert_init.c",
+            "aarch64/audio_convert_neon.S",
+            "aarch64/neontest.c",
+            "aarch64/resample.S",
+            "aarch64/resample_init.c",
+        ],
+        "//:darwin_aarch64": [
+            "aarch64/audio_convert_init.c",
+            "aarch64/audio_convert_neon.S",
+            "aarch64/neontest.c",
+            "aarch64/resample.S",
+            "aarch64/resample_init.c",
+        ],
+        "//conditions:default": [],
+    }),
+    hdrs = [
+        "audioconvert.h",
+        "resample.h",
+        "swresample.h",
+        "swresample_internal.h",
+        "version.h",
+        "version_major.h",
+    ],
+    copts = CC_COPTS,
+    includes = [
+        ".",
+        "x86",
+    ],
+    linkstatic = True,
+    textual_hdrs = [
+        "//libavutil:file_open.c",
+        "//libavutil:float2half.c",
+        "//libavutil:float_scalarproduct.c",
+        "//libavutil:half2float.c",
+        "//libavutil:log2_tab.c",
+        "//libavutil:reverse.c",
+        "//libavutil:riscv/cpu_common.c",
+        "//libavutil:timecode_internal.c",
+        "//libavutil:vulkan.c",
+        "//libavutil:vulkan_glslang.c",
+        "//libavutil:vulkan_shaderc.c",
+        "//libavutil:tx_template.c",
+        "dither_template.c",
+        "noise_shaping_data.c",
+        "rematrix_template.c",
+        "resample_template.c",
+    ],
+    deps = [
+        "//:compat",
+        "//:config_h",
+        "//:ffmpeg_headers",
+        "//libavutil:avutil",
+    ],
+)
+
+ffmpeg_cc_test(
+    name = "swresample_test",
+    srcs = ["tests/swresample.c"],
+    deps = [":swresample"],
+)

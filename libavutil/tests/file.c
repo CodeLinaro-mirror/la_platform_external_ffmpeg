@@ -16,14 +16,17 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
  */
 
+#include <unistd.h>
 #include "libavutil/file.c"
 
 int main(void)
 {
     uint8_t *buf;
     size_t size;
-    if (av_file_map("file.c", &buf, &size, 0, NULL) < 0)
+    if (av_file_map("libavutil/file.c", &buf, &size, 0, NULL) < 0 &&
+        av_file_map("../ffmpeg+/libavutil/file.c", &buf, &size, 0, NULL) < 0) {
         return 1;
+    }
 
     buf[0] = 's';
     printf("%s", buf);

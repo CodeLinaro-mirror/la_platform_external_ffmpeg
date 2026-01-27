@@ -74,7 +74,7 @@ extern const FFBitStreamFilter ff_vp9_superframe_split_bsf;
 extern const FFBitStreamFilter ff_vvc_metadata_bsf;
 extern const FFBitStreamFilter ff_vvc_mp4toannexb_bsf;
 
-#include "libavcodec/bsf_list.c"
+#include "platform/common/libavcodec/bsf_list.c"
 
 const AVBitStreamFilter *av_bsf_iterate(void **opaque)
 {

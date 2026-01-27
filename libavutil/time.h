@@ -22,6 +22,9 @@
 #define AVUTIL_TIME_H
 
 #include <stdint.h>
+#ifdef __apple__
+#include_next <time.h>
+#endif
 
 /**
  * Get the current time in microseconds.
