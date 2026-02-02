@@ -416,7 +416,10 @@ cc_library(
             "-framework VideoToolbox",
             "-framework CoreFoundation",
         ],
-        "//conditions:default": ["-pthread"],
+        "//conditions:default": [
+            "-pthread",
+            "-Wl,-Bsymbolic",
+        ],
     }),
     linkstatic = True,
     textual_hdrs = [
