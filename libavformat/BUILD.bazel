@@ -214,7 +214,7 @@ cc_library(
     deps = [
         "//:compat",
         "//:config_h",
-        "//:ffmpeg_headers",
+        "//:ffmpeg_private_headers",
         "//:ffversion_common_h",
         "//libavcodec:avcodec",
         "//libavutil:avutil",

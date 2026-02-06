@@ -461,7 +461,7 @@ cc_library(
     deps = [
         "//:compat",
         "//:config_h",
-        "//:ffmpeg_headers",
+        "//:ffmpeg_private_headers",
         "@vulkan-headers//:vulkan_headers",
         "@zlib",
     ] + select({
