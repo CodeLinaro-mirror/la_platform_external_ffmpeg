@@ -2,7 +2,10 @@ load("@rules_cc//cc:defs.bzl", "cc_library")
 load("@rules_nasm//nasm:defs.bzl", "nasm_library")
 load("//:ffmpeg.bzl", "CC_COPTS", "ffmpeg_cc_test")
 
-package(default_visibility = ["//visibility:public"])
+package(
+    default_applicable_licenses = ["//:license"],
+    default_visibility = ["//visibility:public"],
+)
 
 nasm_library(
     name = "avcodec_asm_clean",
@@ -62,7 +65,7 @@ nasm_library(
         "x86/diracdsp.asm",
         "x86/dnxhdenc.asm",
         "x86/exrdsp.asm",
-        "x86/flac_dsp_gpl.asm",
+        "x86/flac_dsp_gpl.asm",  # GPL
         "x86/flacdsp.asm",
         "x86/fmtconvert.asm",
         "x86/fpel.asm",
@@ -391,15 +394,15 @@ cc_library(
         "imgconvert.c",
         "ipu_parser.c",
         "ituh263dec.c",
-        "jfdctfst.c",
-        "jfdctint.c",
+        "jfdctfst.c",  # libjpeg
+        "jfdctint.c",  # libjpeg
         "jni.c",
         "jpeg2000_parser.c",
         "jpegtables.c",
         "jpegxl_parse.c",
         "jpegxl_parser.c",
         "jpegxs_parser.c",
-        "jrevdct.c",
+        "jrevdct.c",  # libjpeg
         "latm_parser.c",
         "libvpxdec.c",
         "libvpxenc.c",
@@ -1486,7 +1489,7 @@ cc_library(
         "hevc/pred_template.c",
         "hpel_template.c",
         "htmlsubtitles.c",
-        "jfdctint_template.c",
+        "jfdctint_template.c",  # libjpeg
         "jpeg2000dwt.c",
         "mjpegenc_huffman.c",
         "motion_est_template.c",

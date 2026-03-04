@@ -2,7 +2,10 @@ load("@rules_cc//cc:defs.bzl", "cc_library")
 load("@rules_nasm//nasm:defs.bzl", "nasm_library")
 load("//:ffmpeg.bzl", "CC_COPTS", "ffmpeg_cc_test")
 
-package(default_visibility = ["//visibility:public"])
+package(
+    default_applicable_licenses = ["//:license"],
+    default_visibility = ["//visibility:public"],
+)
 
 nasm_library(
     name = "avutil_asm_clean",

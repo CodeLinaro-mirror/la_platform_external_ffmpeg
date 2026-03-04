@@ -2,7 +2,10 @@ load("@rules_cc//cc:defs.bzl", "cc_library")
 load("@rules_nasm//nasm:defs.bzl", "nasm_library")
 load("//:ffmpeg.bzl", "CC_COPTS", "ffmpeg_cc_test")
 
-package(default_visibility = ["//:__subpackages__"])
+package(
+    default_applicable_licenses = ["//:license"],
+    default_visibility = ["//:__subpackages__"],
+)
 
 nasm_library(
     name = "swresample_asm_clean",
@@ -135,6 +138,6 @@ cc_library(
 
 ffmpeg_cc_test(
     name = "swresample_test",
-    srcs = ["tests/swresample.c"],
+    srcs = ["tests/swresample.c"],  # GPL
     deps = [":swresample"],
 )

@@ -1,6 +1,22 @@
 load("@rules_cc//cc:defs.bzl", "cc_library")
+load("@rules_license//rules:license.bzl", "license")
 
-package(default_visibility = ["//visibility:public"])
+package(
+    default_applicable_licenses = [":license"],
+    default_visibility = ["//visibility:public"],
+)
+
+license(
+    name = "license",
+    package_name = "ffmpeg",
+    copyright_notice = "Copyright (C) 2000-2026 FFmpeg Project",
+    license_kinds = [
+        "@rules_license//licenses/spdx:GPL-2.0-or-later",
+    ],
+    license_text = "COPYING.GPLv2",
+    package_url = "https://www.ffmpeg.org",
+    package_version = "8.0",
+)
 
 config_setting(
     name = "linux_x86_64",
