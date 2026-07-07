@@ -194,6 +194,18 @@ cc_library(
             "aarch64/tx_float_neon.S",
             "hwcontext_drm.c",
         ],
+        "//:windows_aarch64": [
+            "aarch64/asm.S",
+            "aarch64/cpu.c",
+            "aarch64/crc.S",
+            "aarch64/float_dsp_init.c",
+            "aarch64/float_dsp_neon.S",
+            "aarch64/tx_float_init.c",
+            "aarch64/tx_float_neon.S",
+            "hwcontext_d3d11va.c",
+            "hwcontext_d3d12va.c",
+            "hwcontext_dxva2.c",
+        ],
         "//:darwin_aarch64": [
             "aarch64/asm.S",
             "aarch64/cpu.c",
@@ -474,6 +486,7 @@ cc_library(
         "@zlib",
     ] + select({
         "//:windows_x86_64": [],
+        "//:windows_aarch64": [],
         "//conditions:default": [
             "@libdrm//:drm",
         ],
