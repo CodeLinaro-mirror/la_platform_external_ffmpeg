@@ -50,6 +50,15 @@ config_setting(
     ],
 )
 
+config_setting(
+    name = "windows_aarch64",
+    constraint_values = [
+        "@platforms//cpu:aarch64",
+        "@platforms//os:windows",
+    ],
+)
+
+
 cc_library(
     name = "config_platform_h",
     hdrs = select({
@@ -69,6 +78,10 @@ cc_library(
             "platform/windows-x86_64/config.h",
             "platform/windows-x86_64/config_components.h",
         ],
+        ":windows_aarch64": [
+            "platform/windows-aarch64/config.h",
+            "platform/windows-aarch64/config_components.h",
+        ],
         "//conditions:default": [],
     }),
     includes = select({
@@ -76,6 +89,7 @@ cc_library(
         ":linux_aarch64": ["platform/linux-aarch64"],
         ":darwin_aarch64": ["platform/darwin-aarch64"],
         ":windows_x86_64": ["platform/windows-x86_64"],
+        ":windows_aarch64": ["platform/windows-aarch64"],
         "//conditions:default": [],
     }),
 )
@@ -98,6 +112,7 @@ cc_library(
         ":linux_aarch64": ["platform/linux-aarch64"],
         ":darwin_aarch64": ["platform/darwin-aarch64"],
         ":windows_x86_64": ["platform/windows-x86_64"],
+        ":windows_aarch64": ["platform/windows-aarch64"],
         "//conditions:default": [],
     }),
 )
@@ -109,6 +124,7 @@ cc_library(
         ":linux_aarch64": ["platform/linux-aarch64/libavutil/avconfig.h"],
         ":darwin_aarch64": ["platform/darwin-aarch64/libavutil/avconfig.h"],
         ":windows_x86_64": ["platform/windows-x86_64/libavutil/avconfig.h"],
+        ":windows_aarch64": ["platform/windows-aarch64/libavutil/avconfig.h"],
         "//conditions:default": [],
     }),
     includes = select({
@@ -116,6 +132,7 @@ cc_library(
         ":linux_aarch64": ["platform/linux-aarch64"],
         ":darwin_aarch64": ["platform/darwin-aarch64"],
         ":windows_x86_64": ["platform/windows-x86_64"],
+        ":windows_aarch64": ["platform/windows-aarch64"],
         "//conditions:default": [],
     }),
 )
@@ -126,6 +143,7 @@ cc_library(
         ":linux_x86_64": ["platform/linux-x86_64/libavutil/ffversion.h"],
         ":darwin_aarch64": ["platform/darwin-aarch64/libavutil/ffversion.h"],
         ":windows_x86_64": ["platform/windows-x86_64/libavutil/ffversion.h"],
+        ":windows_aarch64": ["platform/windows-aarch64/libavutil/ffversion.h"],
         "//conditions:default": [],
     }),
     includes = select({
@@ -133,6 +151,7 @@ cc_library(
         ":linux_aarch64": ["platform/linux-aarch64"],
         ":darwin_aarch64": ["platform/darwin-aarch64"],
         ":windows_x86_64": ["platform/windows-x86_64"],
+        ":windows_aarch64": ["platform/windows-aarch64"],
         "//conditions:default": [],
     }),
 )

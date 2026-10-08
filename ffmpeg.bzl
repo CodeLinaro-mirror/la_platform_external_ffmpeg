@@ -23,6 +23,10 @@ _FORCED_INCLUDES = select({
         "/FIplatform/windows-x86_64/config.h",
         "/FIplatform/windows-x86_64/config_components.h",
     ],
+    "//:windows_aarch64": [
+        "/FIplatform/windows-aarch64/config.h",
+        "/FIplatform/windows-aarch64/config_components.h",
+    ],
     # Default to linux-x86_64 if none match
     "//conditions:default": [
         "-include platform/linux-x86_64/config.h",
@@ -108,6 +112,9 @@ _MSVC_COPTS = [
 CC_COPTS = _FORCED_INCLUDES + _BASE_COPTS + select({
     # Windows: Add MSVC specific AVX flags
     "//:windows_x86_64": _MSVC_COPTS + _INTEL_AVX512_MSVC,
+
+    # Windows ARM: Use MSVC options without x86 AVX flags
+    "//:windows_aarch64": _MSVC_COPTS + ["/clang:-march=armv8-a+crc"],
 
     # MacOS ARM: Keep as is (No AVX)
     "//:darwin_aarch64": _DARWIN_COPTS,
