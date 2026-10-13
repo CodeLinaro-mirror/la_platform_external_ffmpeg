@@ -94,6 +94,13 @@ cc_library(
             "aarch64/resample.S",
             "aarch64/resample_init.c",
         ],
+        "//:windows_aarch64": [
+            "aarch64/audio_convert_init.c",
+            "aarch64/audio_convert_neon.S",
+            "aarch64/neontest.c",
+            "aarch64/resample.S",
+            "aarch64/resample_init.c",
+        ],
         "//conditions:default": [],
     }),
     hdrs = [
