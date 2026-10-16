@@ -191,6 +191,10 @@ cc_library(
             "-DEFAULTLIB:ws2_32.lib",
             "-DEFAULTLIB:shell32.lib",
         ],
+        "//:windows_aarch64": [
+            "-DEFAULTLIB:ws2_32.lib",
+            "-DEFAULTLIB:shell32.lib",
+        ],
         "//conditions:default": [],
     }),
     linkstatic = True,
