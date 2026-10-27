@@ -413,6 +413,12 @@ cc_library(
             "hwcontext_d3d12va_internal.h",
             "hwcontext_dxva2.h",
         ],
+        "//:windows_aarch64": [
+            "hwcontext_d3d11va.h",
+            "hwcontext_d3d12va.h",
+            "hwcontext_d3d12va_internal.h",
+            "hwcontext_dxva2.h",
+        ],
         "//conditions:default": [],
     }),
     copts = CC_COPTS,
@@ -421,6 +427,10 @@ cc_library(
     ],
     linkopts = select({
         "//:windows_x86_64": [
+            "-DEFAULTLIB:bcrypt.lib",
+            "-DEFAULTLIB:user32.lib",
+        ],
+        "//:windows_aarch64": [
             "-DEFAULTLIB:bcrypt.lib",
             "-DEFAULTLIB:user32.lib",
         ],
@@ -476,6 +486,7 @@ cc_library(
     ] + select({
         "//:linux_aarch64": ["aarch64/asm.S"],
         "//:darwin_aarch64": ["aarch64/asm.S"],
+        "//:windows_aarch64": ["aarch64/asm.S"],
         "//conditions:default": [],
     }),
     deps = [

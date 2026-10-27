@@ -58,7 +58,6 @@ config_setting(
     ],
 )
 
-
 cc_library(
     name = "config_platform_h",
     hdrs = select({
@@ -141,6 +140,7 @@ cc_library(
     name = "ffversion_h",
     hdrs = select({
         ":linux_x86_64": ["platform/linux-x86_64/libavutil/ffversion.h"],
+        ":linux_aarch64": ["platform/linux-aarch64/libavutil/ffversion.h"],
         ":darwin_aarch64": ["platform/darwin-aarch64/libavutil/ffversion.h"],
         ":windows_x86_64": ["platform/windows-x86_64/libavutil/ffversion.h"],
         ":windows_aarch64": ["platform/windows-aarch64/libavutil/ffversion.h"],
